@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.example.gridmind.ui.theme.Error
 import java.util.Locale
 
 @Composable
@@ -20,6 +21,7 @@ fun GameTimer(
     remainingMillis: Long,
     totalMillis: Long,
     active: Boolean,
+    urgent: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val progress = if (totalMillis > 0) remainingMillis.toFloat() / totalMillis else 0f
@@ -27,7 +29,7 @@ fun GameTimer(
         Text(
             text = if (active) String.format(Locale.US, "%.1fs", remainingMillis / 1000f) else "--",
             style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
+            color = if (urgent) Error else MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.testTag("game_timer")
         )
         LinearProgressIndicator(
@@ -37,9 +39,10 @@ fun GameTimer(
                 .fillMaxWidth()
                 .height(6.dp)
                 .clip(androidx.compose.foundation.shape.RoundedCornerShape(3.dp)),
-            color = MaterialTheme.colorScheme.primary,
+            color = if (urgent) Error else MaterialTheme.colorScheme.primary,
             trackColor = MaterialTheme.colorScheme.surfaceVariant,
             drawStopIndicator = {}
         )
     }
 }
+

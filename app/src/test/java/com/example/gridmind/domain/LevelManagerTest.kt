@@ -31,6 +31,14 @@ class LevelManagerTest {
     }
 
     @Test
+    fun answerTimeFollowsHighlightCountAndStaysAboveMinimum() {
+        assertEquals(8000L, manager.getLevel(1).answerMillis)
+        assertEquals(14000L, manager.getLevel(4).answerMillis)
+        assertEquals(18000L, manager.getLevel(5).answerMillis)
+        for (n in 1..200) assertTrue(manager.getLevel(n).answerMillis >= 8000L)
+    }
+
+    @Test
     fun passThresholdIsInclusive() {
         assertTrue(manager.isPassed(80.0))
         assertFalse(manager.isPassed(79.9))
@@ -41,3 +49,4 @@ class LevelManagerTest {
         manager.getLevel(0)
     }
 }
+

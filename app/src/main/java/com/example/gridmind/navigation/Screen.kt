@@ -2,6 +2,7 @@
 
 sealed class Screen(val route: String) {
     data object Home : Screen("home")
+    data object LevelSelect : Screen("levels")
     data object Statistics : Screen("statistics")
     data object Settings : Screen("settings")
 
@@ -24,3 +25,4 @@ sealed class Screen(val route: String) {
         ) = "result/$level/$score/$correct/$incorrect/$missed/$accuracy/$passed"
     }
 }
+

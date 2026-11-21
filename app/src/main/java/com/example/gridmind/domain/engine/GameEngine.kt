@@ -19,6 +19,8 @@ class GameEngine(
             targetPositions = gridGenerator.generate(config.gridSize, config.highlightCount),
             totalTimeMillis = config.memorizeMillis,
             remainingTimeMillis = config.memorizeMillis,
+            answerTimeMillis = config.answerMillis,
+            answerRemainingMillis = config.answerMillis,
             phase = GamePhase.SHOWING_PATTERN
         )
     }
@@ -26,6 +28,10 @@ class GameEngine(
     fun updateRemainingTime(state: GameState, remainingMillis: Long): GameState =
         if (state.phase != GamePhase.SHOWING_PATTERN) state
         else state.copy(remainingTimeMillis = remainingMillis.coerceIn(0L, state.totalTimeMillis))
+
+    fun updateAnswerTime(state: GameState, remainingMillis: Long): GameState =
+        if (state.phase != GamePhase.WAITING_FOR_ANSWER) state
+        else state.copy(answerRemainingMillis = remainingMillis.coerceIn(0L, state.answerTimeMillis))
 
     fun finishShowing(state: GameState): GameState =
         if (state.phase != GamePhase.SHOWING_PATTERN) state
@@ -80,3 +86,4 @@ class GameEngine(
         return startRound(state.level + 1)
     }
 }
+

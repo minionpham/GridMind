@@ -76,7 +76,8 @@ class GameViewModelTest {
         runCurrent()
         vm.onCellClick(0)
         assertTrue(vm.uiState.value.game.selectedPositions.isEmpty())
-        advanceUntilIdle()
+        advanceTimeBy(4100)
+        runCurrent()
         vm.onCellClick(0)
         assertEquals(setOf(0), vm.uiState.value.game.selectedPositions)
         vm.onCellClick(0)
@@ -88,7 +89,8 @@ class GameViewModelTest {
         val vm = vm()
         val events = mutableListOf<GameEvent>()
         val job = backgroundScope.launch { vm.events.collect { e -> events += e } }
-        advanceUntilIdle()
+        advanceTimeBy(4100)
+        runCurrent()
         vm.uiState.value.game.targetPositions.forEach { vm.onCellClick(it) }
         vm.onConfirm()
         vm.onConfirm()
@@ -102,6 +104,26 @@ class GameViewModelTest {
         assertTrue(events.last() is GameEvent.NavigateToResult)
         job.cancel()
     }
+
+    @Test
+    fun answerTimerCountsDownAndAutoSubmitsOnTimeout() = runTest(dispatcher) {
+        val vm = vm()
+        advanceTimeBy(4100)
+        runCurrent()
+        val game = vm.uiState.value.game
+        assertEquals(GamePhase.WAITING_FOR_ANSWER, game.phase)
+        assertEquals(8000L, game.answerTimeMillis)
+        advanceTimeBy(3000)
+        runCurrent()
+        val mid = vm.uiState.value.game
+        assertEquals(GamePhase.WAITING_FOR_ANSWER, mid.phase)
+        assertTrue(mid.answerRemainingMillis in 1..5100)
+        advanceTimeBy(5100)
+        runCurrent()
+        assertEquals(GamePhase.CHECKING_RESULT, vm.uiState.value.game.phase)
+        assertTrue(!vm.uiState.value.game.result!!.passed)
+        advanceTimeBy(GameViewModel.FEEDBACK_MILLIS + 1)
+        runCurrent()
+        assertEquals(1, repository.saved.size)
+    }
 }
-
-

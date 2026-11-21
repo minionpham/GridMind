@@ -24,7 +24,9 @@ class LevelManager(
         val cap = gridSize * gridSize * 3 / 5
         val highlight = min(cap, last.highlightCount + (extra + 1) / 2).coerceAtLeast(1)
         val time = (last.memorizeMillis - extra * 100L).coerceAtLeast(MIN_MEMORIZE_MILLIS)
-        return GameLevel(level, gridSize, highlight, time)
+        // Answer time follows the highlight count but shrinks slowly, never below the minimum.
+        val answer = (highlight * 2000L - extra * 200L).coerceAtLeast(GameLevel.MIN_ANSWER_MILLIS)
+        return GameLevel(level, gridSize, highlight, time, answer)
     }
 
     fun isPassed(accuracy: Double): Boolean = accuracy >= passAccuracy
@@ -42,3 +44,4 @@ class LevelManager(
         )
     }
 }
+

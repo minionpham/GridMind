@@ -38,7 +38,7 @@ class StatisticsCalculator(private val recentLimit: Int = 20) {
 
     private fun levelStats(history: List<GameHistory>): List<LevelStats> =
         history.groupBy { it.level }.toSortedMap().map { (level, games) ->
-            LevelStats(level, games.size, games.count { it.passed }, games.map { it.accuracy }.average())
+            LevelStats(level, games.size, games.count { it.passed }, games.map { it.accuracy }.average(), games.maxOf { it.score })
         }
 
     private fun bestRun(flags: List<Boolean>): Int {
@@ -78,3 +78,4 @@ class StatisticsCalculator(private val recentLimit: Int = 20) {
         return best
     }
 }
+

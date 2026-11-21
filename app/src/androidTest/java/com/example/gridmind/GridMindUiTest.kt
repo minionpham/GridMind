@@ -39,6 +39,7 @@ class GridMindUiTest {
                 HomeScreen(
                     progress = PlayerProgress(bestScore = 450, highestUnlockedLevel = 3),
                     onPlay = { clicks += "play" },
+                    onLevels = { clicks += "levels" },
                     onStatistics = { clicks += "stats" },
                     onSettings = { clicks += "settings" }
                 )
@@ -47,9 +48,10 @@ class GridMindUiTest {
         rule.onNodeWithTag("home_level").assertTextEquals("3")
         rule.onNodeWithTag("home_best").assertTextEquals("450")
         rule.onNodeWithTag("play_button").performClick()
+        rule.onNodeWithTag("levels_button").performClick()
         rule.onNodeWithTag("statistics_button").performClick()
         rule.onNodeWithTag("settings_button").performClick()
-        assertEquals(listOf("play", "stats", "settings"), clicks)
+        assertEquals(listOf("play", "levels", "stats", "settings"), clicks)
     }
 
     @Test
@@ -134,3 +136,4 @@ class GridMindUiTest {
         rule.onNodeWithTag("level_row_1").assertExists()
     }
 }
+

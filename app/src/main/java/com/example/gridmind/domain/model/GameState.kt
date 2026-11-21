@@ -14,7 +14,10 @@ data class GameState(
     val selectedPositions: Set<Int> = emptySet(),
     val totalTimeMillis: Long = 4000L,
     val remainingTimeMillis: Long = 4000L,
+    val answerTimeMillis: Long = 8000L,
+    val answerRemainingMillis: Long = 8000L,
     val score: Int = 0,
     val phase: GamePhase = GamePhase.SHOWING_PATTERN,
     val result: GameResult? = null
 )
+

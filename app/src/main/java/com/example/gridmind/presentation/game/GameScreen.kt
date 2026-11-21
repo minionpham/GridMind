@@ -34,6 +34,8 @@ import com.example.gridmind.presentation.game.components.MemoryGrid
 import com.example.gridmind.ui.components.GradientScreen
 import com.example.gridmind.ui.components.PrimaryButton
 
+private const val URGENT_MILLIS = 3000L
+
 @Composable
 fun GameScreen(
     viewModel: GameViewModel,
@@ -93,10 +95,12 @@ fun GameContent(
                     modifier = Modifier.testTag("score_text")
                 )
             }
+            val answering = game.phase == GamePhase.WAITING_FOR_ANSWER
             GameTimer(
-                remainingMillis = game.remainingTimeMillis,
-                totalMillis = game.totalTimeMillis,
-                active = game.phase == GamePhase.SHOWING_PATTERN
+                remainingMillis = if (answering) game.answerRemainingMillis else game.remainingTimeMillis,
+                totalMillis = if (answering) game.answerTimeMillis else game.totalTimeMillis,
+                active = answering || game.phase == GamePhase.SHOWING_PATTERN,
+                urgent = answering && game.answerRemainingMillis <= URGENT_MILLIS
             )
             Text(
                 instructionFor(game),
@@ -130,7 +134,7 @@ fun GameContent(
 
 private fun instructionFor(game: GameState) = when (game.phase) {
     GamePhase.SHOWING_PATTERN -> "Memorize the highlighted cells"
-    GamePhase.WAITING_FOR_ANSWER -> "Tap the cells you remember"
+    GamePhase.WAITING_FOR_ANSWER -> "Tap the cells you remember before time runs out"
     GamePhase.CHECKING_RESULT ->
         if (game.result?.passed == true) "Well done!" else "Not quite..."
     GamePhase.ROUND_COMPLETED -> "Round complete"
@@ -148,4 +152,5 @@ internal fun GameState.cellState(index: Int): CellState {
         else -> CellState.NORMAL
     }
 }
+
 

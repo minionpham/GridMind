@@ -14,6 +14,8 @@ import com.example.gridmind.presentation.game.GameScreen
 import com.example.gridmind.presentation.game.GameViewModel
 import com.example.gridmind.presentation.home.HomeScreen
 import com.example.gridmind.presentation.home.HomeViewModel
+import com.example.gridmind.presentation.levelselect.LevelSelectScreen
+import com.example.gridmind.presentation.levelselect.LevelSelectViewModel
 import com.example.gridmind.presentation.result.ResultScreen
 import com.example.gridmind.presentation.settings.SettingsScreen
 import com.example.gridmind.presentation.settings.SettingsViewModel
@@ -38,6 +40,7 @@ fun AppNavigation() {
             HomeScreen(
                 progress = progress,
                 onPlay = { startGame(progress.highestUnlockedLevel, popResult = false) },
+                onLevels = { navController.navigate(Screen.LevelSelect.route) },
                 onStatistics = { navController.navigate(Screen.Statistics.route) },
                 onSettings = { navController.navigate(Screen.Settings.route) }
             )
@@ -88,6 +91,15 @@ fun AppNavigation() {
                 onHome = { navController.popBackStack(Screen.Home.route, inclusive = false) }
             )
         }
+        composable(Screen.LevelSelect.route) {
+            val vm: LevelSelectViewModel = viewModel(factory = LevelSelectViewModel.Factory)
+            val state by vm.uiState.collectAsStateWithLifecycle()
+            LevelSelectScreen(
+                state = state,
+                onLevelSelected = { startGame(it, popResult = false) },
+                onBack = { navController.popBackStack() }
+            )
+        }
         composable(Screen.Statistics.route) {
             val vm: StatisticsViewModel = viewModel(factory = StatisticsViewModel.Factory)
             val stats by vm.statistics.collectAsStateWithLifecycle()
@@ -107,3 +119,4 @@ fun AppNavigation() {
         }
     }
 }
+

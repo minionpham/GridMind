@@ -30,6 +30,7 @@ import com.example.gridmind.ui.components.SecondaryButton
 fun HomeScreen(
     progress: PlayerProgress,
     onPlay: () -> Unit,
+    onLevels: () -> Unit,
     onStatistics: () -> Unit,
     onSettings: () -> Unit
 ) {
@@ -63,7 +64,12 @@ fun HomeScreen(
                 modifier = Modifier.widthIn(max = 400.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                PrimaryButton("Play", onPlay, Modifier.fillMaxWidth().testTag("play_button"))
+                PrimaryButton(
+                    "Continue  Level ${progress.highestUnlockedLevel}",
+                    onPlay,
+                    Modifier.fillMaxWidth().testTag("play_button")
+                )
+                SecondaryButton("Select level", onLevels, Modifier.fillMaxWidth().testTag("levels_button"))
                 SecondaryButton("Statistics", onStatistics, Modifier.fillMaxWidth().testTag("statistics_button"))
                 SecondaryButton("Settings", onSettings, Modifier.fillMaxWidth().testTag("settings_button"))
             }
@@ -83,3 +89,4 @@ private fun StatCard(label: String, value: String, tag: String, modifier: Modifi
         }
     }
 }
+

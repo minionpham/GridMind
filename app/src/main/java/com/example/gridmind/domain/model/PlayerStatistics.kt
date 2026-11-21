@@ -4,7 +4,8 @@ data class LevelStats(
     val level: Int,
     val played: Int,
     val passed: Int,
-    val averageAccuracy: Double
+    val averageAccuracy: Double,
+    val bestScore: Int = 0
 ) {
     val winRate: Double get() = if (played == 0) 0.0 else passed.toDouble() / played * 100.0
 }
@@ -24,3 +25,4 @@ data class PlayerStatistics(
     /** Oldest to newest, for charting. */
     val trend: List<GameHistory> = emptyList()
 )
+

@@ -46,6 +46,7 @@ class GameViewModel(
 
     fun onConfirm() {
         if (_uiState.value.game.phase != GamePhase.WAITING_FOR_ANSWER) return
+        timerJob?.cancel()
         _uiState.update { it.copy(game = engine.submit(it.game)) }
         val result = _uiState.value.game.result ?: return
         viewModelScope.launch {
@@ -68,6 +69,15 @@ class GameViewModel(
                 _uiState.update { it.copy(game = engine.updateRemainingTime(it.game, remaining)) }
             }
             _uiState.update { it.copy(game = engine.finishShowing(it.game)) }
+
+            var answerRemaining = _uiState.value.game.answerTimeMillis
+            while (answerRemaining > 0) {
+                delay(TICK_MILLIS)
+                answerRemaining -= TICK_MILLIS
+                _uiState.update { it.copy(game = engine.updateAnswerTime(it.game, answerRemaining)) }
+            }
+            // Time is up: submit whatever has been selected.
+            onConfirm()
         }
     }
 
@@ -84,3 +94,4 @@ class GameViewModel(
         }
     }
 }
+
