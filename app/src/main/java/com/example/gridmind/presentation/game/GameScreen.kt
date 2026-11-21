@@ -3,13 +3,10 @@
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +15,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -74,64 +70,64 @@ fun GameContent(
     onCellClick: (Int) -> Unit,
     onConfirm: () -> Unit
 ) {
-    GradientScreen {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .widthIn(max = 520.dp)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(
-                    "Level ${game.level}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.testTag("level_text")
-                )
-                Text(
-                    "Score ${game.score}",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.testTag("score_text")
-                )
-            }
-            val answering = game.phase == GamePhase.WAITING_FOR_ANSWER
-            GameTimer(
-                remainingMillis = if (answering) game.answerRemainingMillis else game.remainingTimeMillis,
-                totalMillis = if (answering) game.answerTimeMillis else game.totalTimeMillis,
-                active = answering || game.phase == GamePhase.SHOWING_PATTERN,
-                urgent = answering && game.answerRemainingMillis <= URGENT_MILLIS
+    val answering = game.phase == GamePhase.WAITING_FOR_ANSWER
+    val grid: @Composable (Modifier) -> Unit = { modifier ->
+        MemoryGrid(
+            gridSize = game.gridSize,
+            cellStateOf = { game.cellState(it) },
+            enabled = answering,
+            onCellClick = onCellClick,
+            modifier = modifier
+        )
+    }
+    val header: @Composable () -> Unit = {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Text(
+                "Level ${game.level}",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.testTag("level_text")
             )
             Text(
-                instructionFor(game),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("instruction_text")
+                "Score ${game.score}",
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.testTag("score_text")
             )
-            Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) {
-                MemoryGrid(
-                    gridSize = game.gridSize,
-                    cellStateOf = { game.cellState(it) },
-                    enabled = game.phase == GamePhase.WAITING_FOR_ANSWER,
-                    onCellClick = onCellClick,
-                    modifier = Modifier.fillMaxSize()
+        }
+        GameTimer(
+            remainingMillis = if (answering) game.answerRemainingMillis else game.remainingTimeMillis,
+            totalMillis = if (answering) game.answerTimeMillis else game.totalTimeMillis,
+            active = answering || game.phase == GamePhase.SHOWING_PATTERN,
+            urgent = answering && game.answerRemainingMillis <= URGENT_MILLIS
+        )
+        Text(
+            instructionFor(game),
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.testTag("instruction_text")
+        )
+    }
+    val confirm: @Composable () -> Unit = {
+        Box(Modifier.heightIn(min = 56.dp).fillMaxWidth()) {
+            if (answering) {
+                PrimaryButton(
+                    "Confirm",
+                    onConfirm,
+                    Modifier.fillMaxWidth().testTag("confirm_button"),
+                    enabled = game.selectedPositions.isNotEmpty()
                 )
-            }
-            Box(Modifier.heightIn(min = 56.dp).fillMaxWidth()) {
-                if (game.phase == GamePhase.WAITING_FOR_ANSWER) {
-                    PrimaryButton(
-                        "Confirm",
-                        onConfirm,
-                        Modifier.fillMaxWidth().testTag("confirm_button"),
-                        enabled = game.selectedPositions.isNotEmpty()
-                    )
-                }
             }
         }
     }
-}
 
+    GradientScreen {
+        AdaptiveGameLayout(
+            header = header,
+            board = { grid(Modifier.fillMaxSize()) },
+            footer = confirm
+        )
+    }
+}
 private fun instructionFor(game: GameState) = when (game.phase) {
     GamePhase.SHOWING_PATTERN -> "Memorize the highlighted cells"
     GamePhase.WAITING_FOR_ANSWER -> "Tap the cells you remember before time runs out"

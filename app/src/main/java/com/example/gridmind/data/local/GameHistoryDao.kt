@@ -10,9 +10,10 @@ interface GameHistoryDao {
     @Insert
     suspend fun insert(entity: GameHistoryEntity)
 
-    @Query("SELECT * FROM game_history ORDER BY playedAt DESC, id DESC")
-    fun observeAll(): Flow<List<GameHistoryEntity>>
+    @Query("SELECT * FROM game_history WHERE mode = :mode ORDER BY playedAt DESC, id DESC")
+    fun observeByMode(mode: String): Flow<List<GameHistoryEntity>>
 
     @Query("DELETE FROM game_history")
     suspend fun clear()
 }
+

@@ -37,7 +37,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun StatisticsScreen(stats: PlayerStatistics, onBack: () -> Unit) {
+fun StatisticsScreen(stats: PlayerStatistics, onBack: () -> Unit, modeLabel: String? = null) {
     GradientScreen {
         Column(Modifier.fillMaxSize().padding(horizontal = 20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -50,6 +50,9 @@ fun StatisticsScreen(stats: PlayerStatistics, onBack: () -> Unit) {
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 modifier = Modifier.padding(top = 8.dp)
             ) {
+                if (modeLabel != null) {
+                    item { Text(modeLabel, color = MaterialTheme.colorScheme.onSurfaceVariant) }
+                }
                 item {
                     Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)) {
                         Column(Modifier.fillMaxWidth().padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -189,4 +192,5 @@ private fun HistoryRow(game: GameHistory) {
         }
     }
 }
+
 

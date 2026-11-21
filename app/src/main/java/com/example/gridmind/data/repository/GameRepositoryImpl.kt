@@ -5,6 +5,7 @@ import com.example.gridmind.data.local.GameHistoryEntity
 import com.example.gridmind.data.local.PreferencesDataSource
 import com.example.gridmind.domain.engine.StatisticsCalculator
 import com.example.gridmind.domain.model.GameHistory
+import com.example.gridmind.domain.model.GameMode
 import com.example.gridmind.domain.model.GameResult
 import com.example.gridmind.domain.model.GameSettings
 import com.example.gridmind.domain.model.PlayerProgress
@@ -21,12 +22,13 @@ class GameRepositoryImpl(
 
     private val calculator = StatisticsCalculator()
 
-    override val progress: Flow<PlayerProgress> = preferences.progress
     override val settings: Flow<GameSettings> = preferences.settings
 
-    override val statistics: Flow<PlayerStatistics> = combine(
-        preferences.progress,
-        dao.observeAll()
+    override fun progress(mode: GameMode): Flow<PlayerProgress> = preferences.progress(mode)
+
+    override fun statistics(mode: GameMode): Flow<PlayerStatistics> = combine(
+        preferences.progress(mode),
+        dao.observeByMode(mode.name)
     ) { progress, rows ->
         calculator.calculate(
             history = rows.map { it.toDomain() },
@@ -35,7 +37,7 @@ class GameRepositoryImpl(
         )
     }
 
-    override suspend fun saveResult(result: GameResult, playedAt: Long) {
+    override suspend fun saveResult(result: GameResult, mode: GameMode, playedAt: Long) {
         dao.insert(
             GameHistoryEntity(
                 level = result.level,
@@ -45,10 +47,12 @@ class GameRepositoryImpl(
                 missedCount = result.missedCount,
                 accuracy = result.accuracy,
                 passed = result.passed,
+                mode = mode.name,
                 playedAt = playedAt
             )
         )
         preferences.updateProgress(
+            mode = mode,
             score = result.score,
             unlockedLevel = if (result.passed) result.level + 1 else 1
         )
@@ -76,4 +80,6 @@ class GameRepositoryImpl(
     )
 
 }
+
+
 

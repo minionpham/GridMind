@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.gridmind.domain.engine.GameEngine
+import com.example.gridmind.domain.model.GameMode
 import com.example.gridmind.domain.model.GamePhase
 import com.example.gridmind.domain.repository.GameRepository
 import com.example.gridmind.ui.appContainer
@@ -52,7 +53,7 @@ class GameViewModel(
         viewModelScope.launch {
             _events.send(GameEvent.RoundChecked(result))
             // Persistence failure must not trap the player on this screen.
-            runCatching { repository.saveResult(result) }
+            runCatching { repository.saveResult(result, GameMode.REMEMBER_THE_POSITION) }
             delay(FEEDBACK_MILLIS)
             _uiState.update { it.copy(game = engine.completeRound(it.game)) }
             _events.send(GameEvent.NavigateToResult(result))
@@ -94,4 +95,5 @@ class GameViewModel(
         }
     }
 }
+
 

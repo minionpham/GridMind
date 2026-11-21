@@ -2,7 +2,7 @@
 
 import com.example.gridmind.domain.engine.GameEngine
 import com.example.gridmind.domain.engine.GridGenerator
-import com.example.gridmind.domain.model.GameHistory
+import com.example.gridmind.domain.model.GameMode
 import com.example.gridmind.domain.model.GamePhase
 import com.example.gridmind.domain.model.GameResult
 import com.example.gridmind.domain.model.GameSettings
@@ -33,10 +33,10 @@ import org.junit.Test
 
 private class FakeRepository : GameRepository {
     val saved = mutableListOf<GameResult>()
-    override val progress: Flow<PlayerProgress> = MutableStateFlow(PlayerProgress())
     override val settings: Flow<GameSettings> = MutableStateFlow(GameSettings())
-    override val statistics: Flow<PlayerStatistics> = MutableStateFlow(PlayerStatistics())
-    override suspend fun saveResult(result: GameResult, playedAt: Long) { saved += result }
+    override fun progress(mode: GameMode): Flow<PlayerProgress> = MutableStateFlow(PlayerProgress())
+    override fun statistics(mode: GameMode): Flow<PlayerStatistics> = MutableStateFlow(PlayerStatistics())
+    override suspend fun saveResult(result: GameResult, mode: GameMode, playedAt: Long) { saved += result }
     override suspend fun setSoundEnabled(enabled: Boolean) {}
     override suspend fun setVibrationEnabled(enabled: Boolean) {}
     override suspend fun setThemeMode(mode: ThemeMode) {}
@@ -127,3 +127,4 @@ class GameViewModelTest {
         assertEquals(1, repository.saved.size)
     }
 }
+

@@ -27,6 +27,8 @@ import com.example.gridmind.ui.theme.Error
 import com.example.gridmind.ui.theme.Success
 import java.util.Locale
 
+private data class ResultRowData(val label: String, val value: String, val tag: String)
+
 @Composable
 fun ResultScreen(
     level: Int,
@@ -36,6 +38,56 @@ fun ResultScreen(
     missed: Int,
     accuracy: Float,
     passed: Boolean,
+    onNextLevel: () -> Unit,
+    onRetry: () -> Unit,
+    onHome: () -> Unit
+) {
+    ResultContent(
+        level = level,
+        passed = passed,
+        rows = listOf(
+            ResultRowData("Score", score.toString(), "result_score"),
+            ResultRowData("Correct", correct.toString(), "result_correct"),
+            ResultRowData("Incorrect", incorrect.toString(), "result_incorrect"),
+            ResultRowData("Missed", missed.toString(), "result_missed"),
+            ResultRowData("Accuracy", String.format(Locale.US, "%.0f%%", accuracy), "result_accuracy")
+        ),
+        onNextLevel = onNextLevel,
+        onRetry = onRetry,
+        onHome = onHome
+    )
+}
+
+@Composable
+fun CubeResultScreen(
+    level: Int,
+    score: Int,
+    chosen: Int?,
+    correctAnswer: Int,
+    passed: Boolean,
+    onNextLevel: () -> Unit,
+    onRetry: () -> Unit,
+    onHome: () -> Unit
+) {
+    ResultContent(
+        level = level,
+        passed = passed,
+        rows = listOf(
+            ResultRowData("Score", score.toString(), "result_score"),
+            ResultRowData("Your answer", chosen?.toString() ?: "-", "result_chosen"),
+            ResultRowData("Correct answer", correctAnswer.toString(), "result_answer")
+        ),
+        onNextLevel = onNextLevel,
+        onRetry = onRetry,
+        onHome = onHome
+    )
+}
+
+@Composable
+private fun ResultContent(
+    level: Int,
+    passed: Boolean,
+    rows: List<ResultRowData>,
     onNextLevel: () -> Unit,
     onRetry: () -> Unit,
     onHome: () -> Unit
@@ -66,11 +118,7 @@ fun ResultScreen(
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
             ) {
                 Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    ResultRow("Score", score.toString(), "result_score")
-                    ResultRow("Correct", correct.toString(), "result_correct")
-                    ResultRow("Incorrect", incorrect.toString(), "result_incorrect")
-                    ResultRow("Missed", missed.toString(), "result_missed")
-                    ResultRow("Accuracy", String.format(Locale.US, "%.0f%%", accuracy), "result_accuracy")
+                    rows.forEach { ResultRow(it.label, it.value, it.tag) }
                 }
             }
             Spacer(Modifier.height(24.dp))
@@ -80,8 +128,6 @@ fun ResultScreen(
             ) {
                 if (passed) {
                     PrimaryButton("Next Level", onNextLevel, Modifier.fillMaxWidth().testTag("next_level_button"))
-                }
-                if (passed) {
                     SecondaryButton("Retry", onRetry, Modifier.fillMaxWidth().testTag("retry_button"))
                 } else {
                     PrimaryButton("Retry", onRetry, Modifier.fillMaxWidth().testTag("retry_button"))

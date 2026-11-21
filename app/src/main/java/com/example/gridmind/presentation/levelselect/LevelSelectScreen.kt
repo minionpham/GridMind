@@ -20,15 +20,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.gridmind.domain.engine.LevelManager
 import com.example.gridmind.ui.components.GradientScreen
-import java.util.Locale
 
 private const val PREVIEW_LOCKED_LEVELS = 3
 
@@ -37,7 +34,7 @@ fun LevelSelectScreen(
     state: LevelSelectUiState,
     onLevelSelected: (Int) -> Unit,
     onBack: () -> Unit,
-    levelManager: LevelManager = remember { LevelManager() }
+    detailFor: (Int) -> String
 ) {
     val levels = (1..state.highestUnlockedLevel + PREVIEW_LOCKED_LEVELS).toList()
     GradientScreen {
@@ -56,17 +53,12 @@ fun LevelSelectScreen(
             ) {
                 items(levels, key = { it }) { level ->
                     val unlocked = level <= state.highestUnlockedLevel
-                    val config = levelManager.getLevel(level)
                     LevelCard(
                         level = level,
                         unlocked = unlocked,
                         current = level == state.highestUnlockedLevel,
                         bestScore = state.bestScores[level],
-                        detail = String.format(
-                            Locale.US, "%dx%d · %d  %.1fs",
-                            config.gridSize, config.gridSize, config.highlightCount,
-                            config.memorizeMillis / 1000f
-                        ),
+                        detail = detailFor(level),
                         onClick = { onLevelSelected(level) }
                     )
                 }
@@ -123,3 +115,4 @@ private fun LevelCard(
         Card(onClick = {}, enabled = false, modifier = modifier, colors = cardColors, content = { content() })
     }
 }
+

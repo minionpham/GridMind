@@ -13,5 +13,7 @@ data class GameHistoryEntity(
     val missedCount: Int,
     val accuracy: Double,
     val passed: Boolean,
+    val mode: String,
     val playedAt: Long
 )
+

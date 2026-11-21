@@ -1,5 +1,6 @@
 ﻿package com.example.gridmind.domain.model
 
 enum class GameMode {
-    REMEMBER_THE_POSITION
+    REMEMBER_THE_POSITION,
+    COUNT_CUBES
 }
